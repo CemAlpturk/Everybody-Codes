@@ -13,7 +13,7 @@ def read_input(filename: str) -> list[str]:
     with open(filepath, "r") as f:
         lines = f.readlines()
 
-    return lines
+    return [line.strip("\n") for line in lines]
 
 
 def part1() -> None:
