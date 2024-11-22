@@ -16,37 +16,28 @@ def read_input(filename: str) -> list[str]:
     return [line.strip("\n") for line in lines]
 
 
-def part1() -> None:
+def part1():
     filename = "part1-test.txt"
     # filename = "part1.txt"
 
     lines = read_input(filename)
 
-    val = 0
-    print(f"Part1: {val}")
 
-
-def part2() -> None:
+def part2():
     filename = "part2-test.txt"
     # filename = "part2.txt"
 
     lines = read_input(filename)
 
-    val = 0
-    print(f"Part2: {val}")
 
-
-def part3() -> None:
+def part3():
     filename = "part3-test.txt"
     # filename = "part3.txt"
 
     lines = read_input(filename)
 
-    val = 0
-    print(f"Part3: {val}")
-
 
 if __name__ == "__main__":
-    part1()
-    part2()
-    part3()
+    print(f"Part1: {part1()}")
+    print(f"Part2: {part2()}")
+    print(f"Part3: {part3()}")
