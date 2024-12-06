@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from itertools import permutations, product
+from collections import defaultdict
 from tqdm import tqdm
 
 
@@ -191,14 +192,105 @@ def part2(filename: str):
     return d_min
 
 
+def parse(data):
+    path, poi = dict(), defaultdict(set)
+    for y, line in enumerate(data):
+        for x, c in enumerate(line):
+            if c in "#~":
+                continue
+            path[y, x] = c
+            if y == 0 and c == ".":
+                poi["Start"].add((y, x))
+                path[y, x] = "Start"
+            if c != ".":
+                poi[c].add((y, x))
+    return poi, path
+
+
+def find_distances(path, src, poi):
+    distances = {}
+    boundary, seen, dist = set([src]), set(), 0
+    while boundary:
+        newboundary = set()
+        for y, x in boundary:
+            if (y, x) in path and path[y, x] in poi:
+                distances[(path[y, x], (y, x))] = dist
+            seen.add((y, x))
+            for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                ny, nx = y + dy, x + dx
+                if (ny, nx) not in seen and (ny, nx) in path:
+                    newboundary.add((ny, nx))
+        dist += 1
+        boundary = newboundary
+    return distances
+
+
+def follow_route(route, distances):
+    cur = {(c, loc): 0 for (c, loc) in distances if c == route[0]}
+    for target in route[1:]:
+        dests = {(c, loc): 10**9 for (c, loc) in distances if c == target}
+        for src in cur:
+            for dest in dests:
+                dests[dest] = min(dests[dest], cur[src] + distances[src][dest])
+        cur = dests
+    return min(cur.values())
+
+
+def find_best_route(data, start="Start", split=None, choose=None):
+    poi, path = parse(data)
+
+    # We may have to split a POI into individual points that all need visiting.
+    if split:
+        locs = poi.pop(split)
+        for i, loc in enumerate(locs):
+            poi[split + str(i)] = set([loc])
+            path[loc] = split + str(i)
+
+    # We may have to choose just one of the start points based on a choice function.
+    if choose:
+        locs = poi.pop(start)
+        for loc in locs:
+            path[loc] = "."
+        choice = choose(locs)
+        poi[start] = set([choice])
+        path[choice] = start
+
+    distances = {}
+    for c in poi:
+        for loc in poi[c]:
+            distances[(c, loc)] = find_distances(path, loc, poi)
+
+    targets = set(poi) - {start}
+    best_dist = 10**9
+    for route in permutations(targets):
+        route = [start] + list(route) + [start]
+        dist = follow_route(route, distances)
+        best_dist = min(best_dist, dist)
+    return best_dist
+
+
 def part3():
-    filename = "part3-test.txt"
-    # filename = "part3.txt"
+    # filename = "part3-test.txt"
+    filename = "part3.txt"
 
     lines = read_input(filename)
+
+    col_width = len(lines[0]) // 3
+    left = [line[:col_width] for line in lines]
+    middle = [line[col_width : 2 * col_width] for line in lines]
+    right = [line[2 * col_width :] for line in lines]
+
+    l = find_best_route(left, "E", choose=max)  # left route starts&ends at E
+    m = find_best_route(
+        middle, "Start", split="K"
+    )  # middle route has to go through both K's
+    r = find_best_route(right, "R", choose=min)  # end route starts&ends at R
+
+    return l + m + r + 6 * 2
 
 
 if __name__ == "__main__":
     print(f"Part1: {part1()}")
-    print(f"Part2: {part2('part2.txt')}")
-    print(f"Part3: {part2('part3.txt')}")
+    # print(f"Part2: {part2('part2.txt')}")
+    # print(f"Part3: {part2('part3.txt')}")
+    print(f"Part3: {part3()}")
