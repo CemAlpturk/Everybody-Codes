@@ -87,7 +87,8 @@ def part1():
 
 def part2():
     # filename = "part2-test.txt"
-    filename = "part2.txt"
+    # filename = "part2.txt"
+    filename = "bonus.txt"
 
     lines = read_input(filename)
     orders = [s for s in lines[0]]
@@ -104,7 +105,7 @@ def part2():
     # print(grid)
     step = 0
     n_orders = len(orders)
-    for _ in range(100):
+    for _ in range(1024):
         step = 0
         for i in range(1, n - 1):
             for j in range(1, m - 1):
@@ -119,6 +120,13 @@ def part2():
                     )
 
                 step = (step + 1) % n_orders
+
+    with open("result.txt", "w") as f:
+        s = ""
+        for i in range(n):
+            s += "".join(grid[i]) + "\n"
+
+        f.write(s)
 
     for i in range(n):
         s = "".join(grid[i])
