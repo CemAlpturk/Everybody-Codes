@@ -1,11 +1,8 @@
 TEMPLATE_SCRIPT = template.py
 
-.PHONY: all
 
-
-all: create_structure
-
-create_structure:
+.PHONY: quest
+quest:
 ifndef DIR
 	$(error DIR is not set. Specify the directory name)
 endif 
